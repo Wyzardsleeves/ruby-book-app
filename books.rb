@@ -93,17 +93,17 @@ class Book
     puts "Searching! This may take a sec....."
     response = HTTParty.get("https://www.googleapis.com/books/v1/volumes?q=#{search}")
     if response.key?("items")
-      items = response.fetch("items").first(5)
+      items = response.dig("items").first(5)
       items.each do |res|
         #check if publisher exist (some books are without this key)
-        if res.fetch("volumeInfo").key?("publisher")
-          publisher = res.fetch("volumeInfo").fetch("publisher")
+        if res.dig("volumeInfo").key?("publisher")
+          publisher = res.dig("volumeInfo", "publisher")
         else
           publisher = "NO PUBLISHER"
         end
         #check for author
-        if res.fetch("volumeInfo").key?("authors")
-          author = res.fetch("volumeInfo").fetch("authors")[0]
+        if res.dig("volumeInfo").key?("authors")
+          author = res.dig("volumeInfo", "authors")[0]
         else
           author = "NO AUTHOR"
         end
@@ -111,7 +111,7 @@ class Book
           {
             id: counter,
             author: author,
-            title: res.fetch("volumeInfo").fetch("title"),
+            title: res.dig("volumeInfo", "title"),
             publisher: publisher
           }
         )
@@ -139,9 +139,9 @@ class Book
     puts "== Type a number 0-4 to add that book to your reading list ======\n"
     records.each do |record|
       puts "______________________________________"
-      puts "#{record.fetch(:id)} - #{record.fetch(:title)}, written by #{record.fetch(:author)}"
+      puts "#{record.dig(:id)} - #{record.dig(:title)}, written by #{record.dig(:author)}"
       puts "--------------------------------------"
-      puts "Published by #{record.fetch(:publisher)}"
+      puts "Published by #{record.dig(:publisher)}"
     end
     puts "\n== Type a number 0-4 to add that book to your reading list ======"
   end
@@ -149,9 +149,9 @@ class Book
   def display_reading_list
     @reading_list.each do |book|
       puts "______________________________________"
-      puts "#{book.fetch(:title)}, written by #{book.fetch(:author)}"
+      puts "#{book.dig(:title)}, written by #{book.dig(:author)}"
       puts "--------------------------------------"
-      puts "Published by #{book.fetch(:publisher)}"
+      puts "Published by #{book.dig(:publisher)}"
     end
     puts "______________________________________\n"
   end

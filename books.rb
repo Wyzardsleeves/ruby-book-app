@@ -10,16 +10,12 @@ class Book
     @reading_list = [
       {
         id: 5,
-        author: "JK Rowling",
+        s: "JK Rowling",
         title: "Harry Potter",
         publisher: "Somebody who own the rights >.>"
       }
     ]
     @username = getName
-  end
-
-  def start
-    welcome()
   end
 
   #action methods
@@ -28,7 +24,7 @@ class Book
     return gets.chomp
   end
 
-  def welcome
+  def start
     puts "Welcome to your library, #{@username.green}!"
     show_main_menu()
   end
@@ -92,39 +88,37 @@ class Book
     search = gets.chomp
     puts "Searching! This may take a sec....."
     response = HTTParty.get("https://www.googleapis.com/books/v1/volumes?q=#{search}")
-    if response.key?("items")
-      items = response.dig("items").first(5)
-      items.each do |res|
-        #check if publisher exist (some books are without this key)
-        if res.dig("volumeInfo").key?("publisher")
-          publisher = res.dig("volumeInfo", "publisher")
-        else
-          publisher = "NO PUBLISHER"
-        end
-        #check for author
-        if res.dig("volumeInfo").key?("authors")
-          author = res.dig("volumeInfo", "authors")[0]
-        else
-          author = "NO AUTHOR"
-        end
-        results.push(
-          {
-            id: counter,
-            author: author,
-            title: res.dig("volumeInfo", "title"),
-            publisher: publisher
-          }
-        )
-        counter += 1
+    items = response.dig("items").first(5)
+    items.each do |res|
+      #check if publisher exist (some books are without this key)
+      if res.dig("volumeInfo").key?("publisher")
+        publisher = res.dig("volumeInfo", "publisher")
+      else
+        publisher = "NO PUBLISHER"
       end
-      display_search_results(results)
-
-
-      move_to_reading_list(results)
-    elsif !response.key?("items")
-      print "Try a new Query! That one returns nothing. ".red
-      get_books
+      #check for authors
+      if res.dig("volumeInfo").key?("authors")
+        authors = ""
+        res.dig("volumeInfo", "authors").each_with_index{|name, index| if index == 0 then authors += name else authors += ", #{name}" end}
+      else
+        authors = "NO AUTHORS"
+      end
+      results.push(
+        {
+          id: counter,
+          authors: authors,
+          title: res.dig("volumeInfo", "title"),
+          publisher: publisher
+        }
+      )
+      counter += 1
     end
+    display_search_results(results)
+    move_to_reading_list(results)
+    rescue
+    puts "Try a new Query! That one returns nothing. ".red
+    print "New Query: "
+    get_books
     navigation("L")
   end
 
@@ -139,7 +133,7 @@ class Book
     puts "== Type a number 0-4 to add that book to your reading list ======\n"
     records.each do |record|
       puts "______________________________________"
-      puts "#{record.dig(:id)} - #{record.dig(:title)}, written by #{record.dig(:author)}"
+      puts "#{record.dig(:id)} - #{record.dig(:title)}, written by #{record.dig(:authors)}"
       puts "--------------------------------------"
       puts "Published by #{record.dig(:publisher)}"
     end
@@ -149,7 +143,7 @@ class Book
   def display_reading_list
     @reading_list.each do |book|
       puts "______________________________________"
-      puts "#{book.dig(:title)}, written by #{book.dig(:author)}"
+      puts "#{book.dig(:title)}, written by #{book.dig(:authors)}"
       puts "--------------------------------------"
       puts "Published by #{book.dig(:publisher)}"
     end

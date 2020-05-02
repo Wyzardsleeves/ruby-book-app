@@ -1,6 +1,6 @@
 ## Instructions
 
-#### Secripts
+#### Scripts
 
 Bundle install
 run `$ bundle install`

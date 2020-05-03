@@ -3,7 +3,7 @@ module UiTools
   #Generates a UI chain as a method while taking in headings and messages
   def ui_generate_chain(unit, message = "")
     num = 40
-    newNum = num - message.length/2
+    newNum = num - message.size/2
     chain = ""
     newNum.times do chain += unit end
     if message.length > 0

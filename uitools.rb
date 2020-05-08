@@ -5,7 +5,7 @@ module UiTools
     num = 40
     newNum = num - message.size/2
     chain = ""
-    newNum.times do chain += unit end
+    newNum.times { chain += unit }
     if message.length > 0
       exportMessage = chain + " " + message + " " + chain
     else
@@ -54,7 +54,7 @@ module UiTools
       puts ui_generate_chain("-")
       puts "Published by #{record.dig(:publisher)}"
     end
-    puts "\n== Type a number 0-4 to add that book to your reading list ======"
+    puts "\n" + ui_generate_chain("=", "Type a number 0-4 to add that book to your reading list")
   end
 
   def display_reading_list
